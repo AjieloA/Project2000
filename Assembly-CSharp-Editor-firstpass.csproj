@@ -10,10 +10,10 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{AA7291D1-F9D8-6B24-1611-369511F12D1F}</ProjectGuid>
+    <ProjectGuid>{62DC46B8-5DF8-144A-E2BB-633E4015EF77}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
+    <AssemblyName>Assembly-CSharp-Editor-firstpass</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>.</BaseDirectory>
@@ -50,7 +50,7 @@
     <UnityProjectGenerator>Package</UnityProjectGenerator>
     <UnityProjectGeneratorVersion>2.0.22</UnityProjectGeneratorVersion>
     <UnityProjectGeneratorStyle>Legacy</UnityProjectGeneratorStyle>
-    <UnityProjectType>Editor:5</UnityProjectType>
+    <UnityProjectType>EditorPlugins:7</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>2022.3.21f1</UnityVersion>
   </PropertyGroup>
@@ -60,7 +60,30 @@
     <Analyzer Include="K:\CodeDevelopment\UnityEditor\2022.3.21f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\EditorLogic\Editor\PreprocessTexture.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Src\Editor\TemplateRef.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Editor\XLuaUnityDefaultConfig.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Src\Editor\Generator.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Src\Editor\Hotfix.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Editor\ExampleConfig.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Src\Editor\LinkXmlGen\LinkXmlGen.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Src\Editor\Report.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Examples\13_BuildFromCLI\Editor\BuildFromCLI.cs" />
+    <Compile Include="Assets\Plugins\xLua\XLua\Examples\08_Hotfix\Editor\HotfixTestCfg.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaInterfaceBridge.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaWrapPusher.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaDelegateWrap.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaRegister.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaClassWrap.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaRegisterGCM.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\LinkXmlGen\LinkXmlGen.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\PackUnpack.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaEnumWrapGCM.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaClassWrapGCM.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\TemplateCommon.lua.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaDelegateBridge.tpl.txt" />
+    <None Include="Assets\Plugins\xLua\XLua\Src\Editor\Template\LuaEnumWrap.tpl.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -1088,14 +1111,6 @@
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
       <Project>{F99A3486-B6A3-8A7C-2282-78D61D78E9FD}</Project>
       <Name>Assembly-CSharp-firstpass</Name>
-    </ProjectReference>
-    <ProjectReference Include="Assembly-CSharp.csproj">
-      <Project>{435F8721-5826-5EFE-669F-E96ABA1CF36F}</Project>
-      <Name>Assembly-CSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="Assembly-CSharp-Editor-firstpass.csproj">
-      <Project>{62DC46B8-5DF8-144A-E2BB-633E4015EF77}</Project>
-      <Name>Assembly-CSharp-Editor-firstpass</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
