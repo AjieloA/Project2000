@@ -9,7 +9,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{C4401596-9983-0759-7564-6ED1084D0B9C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -65,8 +66,9 @@
     <Compile Include="Assets\CoreLogic\EventTest.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\BaseMgr.cs" />
     <Compile Include="Assets\CoreLogic\Base\SingletonMono.cs" />
-    <Compile Include="Assets\CoreLogic\Tools\GenericEvent.cs" />
+    <Compile Include="Assets\CoreLogic\Tools\SimpleEventGeneric.cs" />
     <Compile Include="Assets\CoreLogic\Base\SingletonAutoMono.cs" />
+    <Compile Include="Assets\CoreLogic\Tools\ToolsConfig.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\ABMgr.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\LuaEnvMgr.cs" />
   </ItemGroup>

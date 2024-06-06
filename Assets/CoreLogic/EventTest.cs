@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Tools;
 
-public class EventTest 
+public class EventTest
 {
-    public static SimpleEvent TestEvent =new SimpleEvent();
+    public static SimpleEvent TestEvent = new SimpleEvent();
 }
