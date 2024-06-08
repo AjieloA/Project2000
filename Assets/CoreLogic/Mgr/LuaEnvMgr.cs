@@ -1,8 +1,15 @@
+//==========================
+// - FileName: LuaEnvMgr.cs
+// - Created: AjieloA
+// - CreateTime: 2024-06-08 18:40:52
+// - Email: 1758580256@qq.com
+// - Description:xlua脚本执行管理器
+//==========================
 using System.IO;
 using UnityEngine;
 using XLua;
 
-public sealed class LuaEnvMgr : BaseMgr<LuaEnvMgr>
+public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
 {
     private LuaEnv mEnv = null;
     public LuaTable LuaTable

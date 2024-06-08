@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//==========================
+// - FileName: ABMgr.cs
+// - Created: AjieloA
+// - CreateTime: 2024-06-08 18:40:52
+// - Email: 1758580256@qq.com
+// - Description:AB包加载管理器
+//==========================
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;

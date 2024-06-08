@@ -1,11 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//==========================
+// - FileName: SingletonMono.cs
+// - Created: AjieloA
+// - CreateTime: 2024-06-08 18:40:52
+// - Email: 1758580256@qq.com
+// - Description:继承Mono的泛型单例
+//==========================
 using UnityEngine;
-
-//C#中 泛型知识点
-//设计模式 单例模式的知识点
-//继承了 MonoBehaviour 的 单例模式对象 需要我们自己保证它的位移性
-public class SingletonMono<T> : MonoBehaviour where T: MonoBehaviour
+public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
 
@@ -18,5 +19,5 @@ public class SingletonMono<T> : MonoBehaviour where T: MonoBehaviour
     {
         instance = this as T;
     }
-	
+
 }

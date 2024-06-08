@@ -60,15 +60,15 @@
     <Analyzer Include="K:\CodeDevelopment\UnityEditor\2022.3.21f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\CoreLogic\Tools\SimpleEvent.cs" />
-    <Compile Include="Assets\CoreLogic\MainTest.cs" />
-    <Compile Include="Assets\CoreLogic\EventTest.cs" />
-    <Compile Include="Assets\CoreLogic\Mgr\BaseMgr.cs" />
+    <Compile Include="Assets\CoreLogic\Test\EventTest.cs" />
+    <Compile Include="Assets\CoreLogic\Mgr\MgrBase.cs" />
     <Compile Include="Assets\CoreLogic\Base\SingletonMono.cs" />
     <Compile Include="Assets\CoreLogic\Base\SingletonAutoMono.cs" />
-    <Compile Include="Assets\CoreLogic\Tools\SimpleEventGeneric.cs" />
-    <Compile Include="Assets\CoreLogic\Tools\ToolsConfig.cs" />
+    <Compile Include="Assets\CoreLogic\RunTimeTools\SimpleEventGeneric.cs" />
+    <Compile Include="Assets\CoreLogic\RunTimeTools\ToolsConfig.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\ABMgr.cs" />
+    <Compile Include="Assets\CoreLogic\Test\MainTest.cs" />
+    <Compile Include="Assets\CoreLogic\RunTimeTools\SimpleEvent.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\LuaEnvMgr.cs" />
   </ItemGroup>
   <ItemGroup>
