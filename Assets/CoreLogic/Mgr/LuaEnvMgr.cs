@@ -28,7 +28,7 @@ public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
     {
         if (mEnv == null)
         {
-            Debug.Log("LuaEnv Is Null");
+            LogMgr.Instance.Error("LuaEnv Is Null");
             return;
         }
         mEnv.DoString($"require('{_fName}')");
@@ -37,7 +37,7 @@ public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
     {
         if (mEnv == null)
         {
-            Debug.Log("LuaEnv Is Null");
+            LogMgr.Instance.Error("LuaEnv Is Null");
             return;
         }
         mEnv.DoString(_fPath);
@@ -46,7 +46,7 @@ public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
     {
         if (mEnv == null)
         {
-            Debug.Log("LuaEnv Is Null");
+            LogMgr.Instance.Error("LuaEnv Is Null");
             return;
         }
         mEnv.Tick();
@@ -55,7 +55,7 @@ public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
     {
         if (mEnv == null)
         {
-            Debug.Log("LuaEnv Is Null");
+            LogMgr.Instance.Error("LuaEnv Is Null");
             return;
         }
         mEnv.Dispose();
@@ -63,10 +63,10 @@ public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
     }
     private byte[] CustomLoader(ref string _fName)
     {
-        string _path = $"{Application.dataPath}/CoreLogic/Xlua/{_fName}.lua";
+        string _path = $"{Application.dataPath}/CoreAsset/Xlua/{_fName}.lua";
         if (File.Exists(_path))
             return File.ReadAllBytes(_path);
-        Debug.Log($"LuaFile Is Null,Path:{_path}");
+        LogMgr.Instance.Error($"LuaFile Is Null,Path:{_path}");
         return null;
     }
     private byte[] CustomABLoader(ref string _fName)
@@ -74,7 +74,7 @@ public sealed class LuaEnvMgr : MgrBase<LuaEnvMgr>
         TextAsset _asset = ABMgr.Instance.SyncLoadRes<TextAsset>("lua", $"{_fName}.lua");
         if (_asset != null)
             return _asset.bytes;
-        Debug.Log($"LuaFile Is Null,Name:{_fName}");
+        LogMgr.Instance.Error($"LuaFile Is Null,Name:{_fName}");
         return null;
     }
 
