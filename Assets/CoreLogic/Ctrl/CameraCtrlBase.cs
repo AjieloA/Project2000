@@ -11,4 +11,8 @@ public class CameraCtrlBase : MonoBehaviour
 {
     private Camera mCamera;
     public Camera MCamera { get => mCamera; set => mCamera = value; }
+    public virtual void InitCamera()
+    {
+
+    }
 }

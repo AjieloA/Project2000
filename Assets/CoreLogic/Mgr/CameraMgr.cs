@@ -6,12 +6,13 @@
 // - Description:
 //==========================
 using System.Collections.Generic;
+using UnityEngine;
 
 public class CameraMgr : MgrBase<CameraMgr>
 {
     private Dictionary<E_CameraType, CameraCtrlBase> mCameras = new Dictionary<E_CameraType, CameraCtrlBase>()
     {
-        {E_CameraType.MainCamera,new MainCameraCtrl() }
+        {E_CameraType.MainCamera,new MainCameraCtrl(Camera.main) }
     };
     public T CameraCtrl<T>(E_CameraType _key) where T : CameraCtrlBase
     {

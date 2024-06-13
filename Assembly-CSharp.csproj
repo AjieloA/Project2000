@@ -60,17 +60,24 @@
     <Analyzer Include="G:\Unity\2022.3.21f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\CoreLogic\RunTimeTools\SortTool.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\LogMgr.cs" />
     <Compile Include="Assets\CoreLogic\Test\EventTest.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\MgrBase.cs" />
+    <Compile Include="Assets\CoreLogic\Data\DataMgrBase.cs" />
     <Compile Include="Assets\CoreLogic\Base\SingletonMono.cs" />
     <Compile Include="Assets\CoreLogic\Ctrl\MainCameraCtrl.cs" />
     <Compile Include="Assets\CoreLogic\Base\SingletonAutoMono.cs" />
     <Compile Include="Assets\CoreLogic\Ctrl\CameraCtrlBase.cs" />
+    <Compile Include="Assets\CoreLogic\Mgr\DataMgr.cs" />
+    <Compile Include="Assets\CoreLogic\RunTimeTools\RandomTool.cs" />
+    <Compile Include="Assets\CoreLogic\Data\MainCameraDataMgr.cs" />
     <Compile Include="Assets\CoreLogic\RunTimeTools\SimpleEventGeneric.cs" />
     <Compile Include="Assets\CoreLogic\RunTimeTools\ToolsConfig.cs" />
+    <Compile Include="Assets\CoreLogic\RunTimeTools\StringTool.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\ABMgr.cs" />
     <Compile Include="Assets\CoreLogic\Test\MainTest.cs" />
+    <Compile Include="Assets\CoreLogic\Action\IRotation.cs" />
     <Compile Include="Assets\CoreLogic\RunTimeTools\SimpleEvent.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\LuaEnvMgr.cs" />
     <Compile Include="Assets\CoreLogic\Mgr\CameraMgr.cs" />
