@@ -30,6 +30,6 @@ public class MainCameraCtrl : CameraCtrlBase
     }
     private void LateUpdate()
     {
-        LogMgr.Instance.Log($"{DataMgr.Instance.Get<MainCameraDataMgr>().MCameraPos}");
+        //LogMgr.Instance.CLog($"{DataMgr.Instance.Get<MainCameraDataMgr>().MCameraPos}");
     }
 }

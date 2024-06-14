@@ -22,7 +22,7 @@ namespace Tools
                 return;
             if (mEvents.ContainsKey(_mono.name) && mEvents[_mono.name] == _callBack)
             {
-                LogMgr.Instance.Error($"{_mono.name}重复添加事件");
+                LogMgr.Instance.CError($"{_mono.name}重复添加事件");
             }
             else
             {

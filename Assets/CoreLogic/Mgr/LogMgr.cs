@@ -13,7 +13,7 @@ public class LogMgr : MgrBase<LogMgr>
 {
     private const bool mEnableLog = true;
     private const bool mSaveLog = true;
-    private readonly string mLogFileDir = Application.dataPath.Replace("Assets", "") + "Log";
+    private readonly string mLogFileDir = Application.dataPath.Replace("Assets", "") + "CLog";
     private string mLogFileName = "";
     private StreamWriter mLogFileWriter = null;
     private bool mFirstLogTag = true;
@@ -21,19 +21,19 @@ public class LogMgr : MgrBase<LogMgr>
     private const string mLogHead = "> ";
 
 
-    public void Log(string _msg)
+    public void CLog(string _msg)
     {
         if (mEnableLog)
             Debug.Log($"{mLogHead}{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}:{_msg}");
         LogToFile(_msg);
     }
-    public void Error(string _msg)
+    public void CError(string _msg)
     {
         if (mEnableLog)
             Debug.LogError($"{mLogHead}{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}:{_msg}");
         LogToFile(_msg);
     }
-    public void Warn(string _msg)
+    public void CWarn(string _msg)
     {
         if (mEnableLog)
             Debug.LogWarning($"{mLogHead}{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}:{_msg}");
@@ -69,7 +69,7 @@ public class LogMgr : MgrBase<LogMgr>
             }
             string path = mLogFileDir + "/" + mLogFileName;
 
-            Debug.Log("Log Path :" + mLogFileDir + "\nLog Name :" + mLogFileName);
+            Debug.Log("CLog Path :" + mLogFileDir + "\nLog Name :" + mLogFileName);
             try
             {
                 if (!Directory.Exists(mLogFileDir))

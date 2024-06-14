@@ -19,7 +19,7 @@ public class CameraMgr : MgrBase<CameraMgr>
         CameraCtrlBase ctrl = null;
         if (!mCameras.TryGetValue(_key, out ctrl))
         {
-            LogMgr.Instance.Error($"CameraCtrl is Null,Key:{_key}");
+            LogMgr.Instance.CError($"CameraCtrl is Null,Key:{_key}");
         }
         return ctrl as T;
     }
