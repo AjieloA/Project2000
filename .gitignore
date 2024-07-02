@@ -5,3 +5,6 @@
 /.vs/Project2000/FileContentIndex
 /.vs/Project2000/FileContentIndex
 *.vsidx
+/CLog
+/CLog
+.vscode/settings.json

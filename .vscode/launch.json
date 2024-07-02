@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "emmylua_attach",
+            "request": "attach",
+            "name": "通过进程ID附加",
+            "pid": 0,
+            "processName": ""
+        }
+    ]
+}
