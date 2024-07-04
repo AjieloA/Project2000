@@ -15,3 +15,4 @@ Button = UI.Button
 Toggle = UI.Toggle
 ScrollRect = UI.ScrollRect
 ABMgr = CS.ABMgr.Instance
+Canvas = GameObject.Find("Canvas")

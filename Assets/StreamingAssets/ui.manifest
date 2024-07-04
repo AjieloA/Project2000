@@ -1,0 +1,51 @@
+ManifestFileVersion: 0
+CRC: 671421011
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 977e47c504f8bbd6d19c0592048ee0bd
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9d4cb948ab0de73cd5c5dcb7bee15cab
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 977e47c504f8bbd6d19c0592048ee0bd
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+- Class: 687078895
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.PersistentCallGroup
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.AnimationTriggers
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Button/ButtonClickedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.ColorBlock
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.MaskableGraphic/CullStateChangedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Navigation
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.SpriteState
+Assets:
+- Assets/CoreAsset/Arts/UI/MainScreenPanel.prefab
+- Assets/CoreAsset/ExternalResources/UITexture/Static/TestAsset/TestAsset.spriteatlas
+Dependencies: []

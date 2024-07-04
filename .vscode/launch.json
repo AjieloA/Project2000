@@ -6,6 +6,11 @@
             "name": "通过进程ID附加",
             "pid": 0,
             "processName": ""
+        },
+        {
+            "name": "Attach to Unity",
+            "type": "vstuc",
+            "request": "attach"
         }
     ]
 }
