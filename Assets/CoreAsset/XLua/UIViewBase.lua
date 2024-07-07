@@ -1,5 +1,4 @@
 UIViewBase = {}
-UIViewBase.mView = nil;
 
 UIViewBase.mLayer = E_UILayer.Normal
 function UIViewBase:New(_base)
@@ -18,13 +17,17 @@ function UIViewBase:Init(_scriptName, ...)
     local _res = ABMgr:SyncLoadRes("ui", _scriptName, typeof(GameObject))
     self.mView = GameObject.Instantiate(_res, Canvas.transform)
     self.mView.name = _scriptName
+    self:Find()
     self:RegisterEvent()
     self:OnCreate()
     self:OnInit()
 end
+function UIViewBase:Find()
+    
+end
 function UIViewBase:OnInit(...) end
-function UIViewBase:RegisterEvent(...) end
-function UIViewBase:UnRegisterEvent(...) end
+function UIViewBase:RegisterEvent() end
+function UIViewBase:UnRegisterEvent() end
 function UIViewBase:Create(...) end
 function UIViewBase:OnCreate(...) end
 function UIViewBase:Show(...)

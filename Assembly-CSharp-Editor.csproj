@@ -64,6 +64,7 @@
     <Compile Include="Assets\CoreLogic\EditorTools\Editor\PreprocessTexture.cs" />
     <Compile Include="Assets\CoreLogic\EditorTools\Editor\UIMenuExpansion.cs" />
     <Compile Include="Assets\XLua\Editor\ExampleConfig.cs" />
+    <Compile Include="Assets\CoreLogic\EditorTools\Editor\CreateXLuaScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
