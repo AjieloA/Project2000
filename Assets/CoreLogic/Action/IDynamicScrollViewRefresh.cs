@@ -7,7 +7,9 @@
 //==========================
 public interface IDynamicScrollViewRefresh
 {
-    public void OnRefreshByIndex(int _index);
+    public void OnEnter(int i, int j);
+    public void OnRefresh(int i, int j);
+    public void OnExit(int i, int j);
     public void OnClear();
 
 }

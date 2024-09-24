@@ -48,21 +48,22 @@ public class UIMenuExpansion : Editor
         Image _imgB = _viewport.GetOrAddComponent<Image>();
         _imgB.color = new Color(1, 1, 1, 0);
         _viewport.AddComponent<RectMask2D>();
+        _dynamicScrollView.ViewPort = _viewportRect;
 
         GameObject _content = new GameObject("Content", typeof(RectTransform));
         _content.transform.SetParent(_viewport.transform);
         RectTransform _contentRect = (_content.transform as RectTransform);
         _contentRect.anchorMin = new Vector2(0, 1);
-        _contentRect.anchorMax = new Vector2(1, 1);
+        _contentRect.anchorMax = new Vector2(0, 1);
         _contentRect.pivot = new Vector2(0, 1);
         _contentRect.anchoredPosition = Vector2.zero;
         _contentRect.sizeDelta = new Vector2(0, _scrollViewRect.sizeDelta.y);
-        _dynamicScrollView.mContent = _content.transform as RectTransform;
+        _dynamicScrollView.Content = _content.transform as RectTransform;
 
         Scrollbar _horizontal = CreateBar(_scrollView.transform, "Horizontal", Vector2.zero, new Vector2(1, 0), Vector2.zero, Vector2.zero, new Vector2(-10, 10));
         Scrollbar _vertical = CreateBar(_scrollView.transform, "Vertical", new Vector2(1, 0), new Vector2(1, 1), new Vector2(1, 1), Vector2.zero, new Vector2(10, -10), false);
-        _dynamicScrollView.mHorizontal = _horizontal;
-        _dynamicScrollView.mVertical = _vertical;
+        _dynamicScrollView.Horizontal = _horizontal;
+        _dynamicScrollView.Vertical = _vertical;
     }
 
     private static Scrollbar CreateBar(Transform _parent, string _name, Vector2 _min, Vector2 _max, Vector2 _pivot, Vector2 _pos, Vector2 _size, bool _isH = true)

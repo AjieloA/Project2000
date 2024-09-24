@@ -12,13 +12,26 @@ public class TestScrollElement : MonoBehaviour, IDynamicScrollViewRefresh
 {
     public void OnClear()
     {
+        LogMgr.Instance.CLog("OnClear");
         gameObject.SetActive(false);
     }
 
-    public void OnRefreshByIndex(int _index)
+    public void OnEnter(int i, int j)
     {
         gameObject.SetActive(true);
         Text _text = transform.GetChild(0).GetComponent<Text>();
-        _text.text = _index.ToString();
+        _text.text = $"{i}|||{j}";
+        LogMgr.Instance.CLog("OnEnter");
+    }
+
+    public void OnExit(int i, int j)
+    {
+        gameObject.SetActive(false);
+        LogMgr.Instance.CLog("OnExit");
+    }
+
+    public void OnRefresh(int i, int j)
+    {
+
     }
 }
