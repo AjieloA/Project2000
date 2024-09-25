@@ -48,6 +48,8 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     private Vector2 mSpacing = Vector2.zero;
     public Vector2 Spacing { get => mSpacing; set => mSpacing = value; }
 
+    public float ScrollSensitivity = 1.0f;
+
     [Header("ÔËÐÐÊ±×´Ì¬")]
 
     [DisplayOnly]
@@ -145,6 +147,7 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
                 mX = Content.anchoredPosition.x;
                 mY = Content.anchoredPosition.y;
                 mY = Mathf.Clamp(_val * mClampSize.y, 0.0f, mClampSize.y);
+                LogMgr.Instance.CLog($"mY:{mY}");
                 OnDragRefresh(mX, mY);
             });
         if (Horizontal)
@@ -176,8 +179,8 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
         ShowCountY = Mathf.CeilToInt(_rect.sizeDelta.y / ElementSize.y) + 1;
         Content.sizeDelta = new Vector2((ElementSize.x + Spacing.x) * HorizontalCount + Padding.x + Padding.y, (ElementSize.y + Spacing.y) * Mathf.CeilToInt(AllElementCount / HorizontalCount) + Padding.z + Padding.w);
         mClampSize = new Vector2(_rect.sizeDelta.x - Content.sizeDelta.x, Content.sizeDelta.y - _rect.sizeDelta.y);
-        Horizontal.size = Mathf.Clamp(_rect.sizeDelta.x / Content.sizeDelta.x, 0.05f, 1.0f);
-        Vertical.size = Mathf.Clamp(_rect.sizeDelta.y / Content.sizeDelta.y, 0.05f, 1.0f);
+        Horizontal.size = Mathf.Clamp(_rect.sizeDelta.x / Content.sizeDelta.x, 0.0f, 1.0f);
+        Vertical.size = Mathf.Clamp(_rect.sizeDelta.y / Content.sizeDelta.y, 0.0f, 1.0f);
         OnCreatePool();
         if (Vertical)
             Vertical.SetValueWithoutNotify(0);
@@ -217,7 +220,7 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
             return;
         if (!Content)
         {
-            LogMgr.Instance.CLog("Content Is Null");
+            LogMgr.Instance.CWarn("Content Is Null");
             return;
         }
         mCurPos = new Vector2(_x, _y);
@@ -353,26 +356,26 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
-        LogMgr.Instance.CLog("OnInitializePotentialDrag");
+        //LogMgr.Instance.CLog("OnInitializePotentialDrag");
         IsDrag = true;
         StartDargPos = eventData.position;
         mDragStartPos = Content.anchoredPosition;
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
-        LogMgr.Instance.CLog("OnBeginDrag");
+        //LogMgr.Instance.CLog("OnBeginDrag");
         CurDargPos = eventData.position;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        LogMgr.Instance.CLog("OnDrag");
+        //LogMgr.Instance.CLog("OnDrag");
         CurDargPos = eventData.position;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        LogMgr.Instance.CLog("OnEndDrag");
+        //LogMgr.Instance.CLog("OnEndDrag");
         IsDrag = false;
         StartDargPos = Vector2.zero;
         CurDargPos = Vector2.zero;
@@ -380,7 +383,13 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
 
     public void OnScroll(PointerEventData eventData)
     {
-        LogMgr.Instance.CLog("OnScroll");
+        //LogMgr.Instance.CLog($"OnScroll:{eventData.scrollDelta.y * ScrollSensitivity}");
+        mX = Content.anchoredPosition.x;
+        mY = Content.anchoredPosition.y;
+        mY = Mathf.Clamp(mY -= (eventData.scrollDelta.y * ScrollSensitivity), 0.0f, mClampSize.y);
+        if (Vertical)
+            Vertical.SetValueWithoutNotify(Mathf.Clamp(mY / mClampSize.y, 0.0f, 1.0f));
+        OnDragRefresh(mX, mY);
     }
 
 
