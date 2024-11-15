@@ -5,6 +5,8 @@
 // - Email: 1758580256@qq.com
 // - Description:
 //==========================
+using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,393 +14,486 @@ using UnityEngine.UI;
 
 public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollHandler, ICanvasElement
 {
-    [Header("����")]
-
+    #region 参数定义
+    [Header("配置")]
+    public RectTransform ViewPort = null;
+    public RectTransform Content = null;
+    public Scrollbar Horizontal = null;
+    public Scrollbar Vertical = null;
+    public GameObject GenerateElement = null;
+    public ConditionInfo Conditions = new ConditionInfo();
+    public int GenerateCount = 0;
+    [DisplayOnly]
     [SerializeField]
-    private RectTransform mViewPort = null;
-    public RectTransform ViewPort { get => mViewPort; set => mViewPort = value; }
-    [SerializeField]
-    private RectTransform mContent = null;
-    public RectTransform Content { get => mContent; set => mContent = value; }
-    [SerializeField]
-    private Scrollbar mHorizontal = null;
-    public Scrollbar Horizontal { get => mHorizontal; set => mHorizontal = value; }
-    [SerializeField]
-    private Scrollbar mVertical = null;
-    public Scrollbar Vertical { get => mVertical; set => mVertical = value; }
-    [Tooltip("����Ԫ��Ԥ����")]
-    [SerializeField]
-    private GameObject mElement = null;
-    public GameObject Element { get => mElement; set => mElement = value; }
-    [SerializeField]
-    private bool mIsHorizontal = true;
-    public bool IsHorizontal { get => mIsHorizontal; set => mIsHorizontal = value; }
-    [SerializeField]
-    private bool mIsVertical = true;
-    public bool IsVertical { get => mIsVertical; set => mIsVertical = value; }
-
-    [SerializeField]
-    private int mHorizontalCount = 1;
-    public int HorizontalCount { get => mHorizontalCount; set => mHorizontalCount = value; }
-
-    [SerializeField]
-    private Vector4 mPadding = Vector4.zero;
-    public Vector4 Padding { get => mPadding; set => mPadding = value; }
-    [SerializeField]
-    private Vector2 mSpacing = Vector2.zero;
-    public Vector2 Spacing { get => mSpacing; set => mSpacing = value; }
-
+    protected int GenerateColCount = 1;
+    public int GenerateRowCount = 1;
+    public IntPaddingInfo Padding = new IntPaddingInfo(0, 0, 0, 0);
+    public Vector2Int Spacing = Vector2Int.zero;
     public float ScrollSensitivity = 1.0f;
-
-    [Header("����ʱ״̬")]
-
+    [SerializeField]
+    public ScrollFixedInfo[] ScrollFixed = new ScrollFixedInfo[] {
+        new ScrollFixedInfo("Horizontal",false,1.0f),
+        new ScrollFixedInfo("Vertical",false,1.0f) };
+    //---------------------------------------------调试---------------------------------------------
+    public int toI = 0;
+    public int toJ = 1;
+    public NavigateRowType toRowType = NavigateRowType.Front;
+    public NavigateColType toColType = NavigateColType.Top;
+    public Vector2 toPos = Vector2Int.zero;
     [DisplayOnly]
-    [SerializeField]
-    private int mShowCountX = 0;
-    public int ShowCountX { get => mShowCountX; set => mShowCountX = value; }
+    protected Vector2 ElementSize = Vector2.zero;
     [DisplayOnly]
-    [SerializeField]
-    private int mShowCountY = 0;
-    public int ShowCountY { get => mShowCountY; set => mShowCountY = value; }
-    [ReName("Ԫ�ؿ���")]
-    [DisplayOnly]
-    [SerializeField]
-    private Vector2 mElementSize = Vector2.zero;
-    [ReName("��Ҫ���ɵ�������")]
-    //[DisplayOnly]
-    [SerializeField]
-    private int mAllElementCount = 10;
-    public int AllElementCount { get => mAllElementCount; set => mAllElementCount = value; }
-    public Vector2 ElementSize { get => mElementSize; set => mElementSize = value; }
-    [DisplayOnly]
-    [SerializeField]
-    public int mHeadX = 0;
-    public int HeadX { get => mHeadX; set => mHeadX = value; }
-    [DisplayOnly]
-    [SerializeField]
-    public int mHeadY = 0;
-    public int HeadY { get => mHeadY; set => mHeadY = value; }
-    [DisplayOnly]
-    [SerializeField]
-    private Vector2 mStartDargPos = Vector2.zero;
-    public Vector2 StartDargPos { get => mStartDargPos; set => mStartDargPos = value; }
-    [DisplayOnly]
-    [SerializeField]
-    private Vector2 mCurDargPos = Vector2.zero;
-    public Vector2 CurDargPos
-    {
-        get => mCurDargPos;
-        set
-        {
-            mCurDargPos = value;
-            DragDis = StartDargPos - mCurDargPos;
-        }
-    }
-    [DisplayOnly]
-    [SerializeField]
-    private Vector2 mDargDis = Vector2.zero;
-    public Vector2 DragDis
-    {
-        get => mDargDis;
-        set
-        {
-            mDargDis = value;
-            if (!IsDrag)
-                return;
-            mX = mDragStartPos.x;
-            mY = mDragStartPos.y;
-            if (IsHorizontal)
-            {
-                mX -= mDargDis.x;
-            }
-            if (IsVertical)
-            {
-                mY -= mDargDis.y;
-            }
-            mX = Mathf.Clamp(mX, mClampSize.x, 0.0f);
-            mY = Mathf.Clamp(mY, 0.0f, mClampSize.y);
-            if (Vertical)
-                Vertical.SetValueWithoutNotify(Mathf.Clamp(mY / mClampSize.y, 0.0f, 1.0f));
-            if (Horizontal)
-                Horizontal.SetValueWithoutNotify(Mathf.Clamp(mX / mClampSize.x, 0.0f, 1.0f));
-            OnDragRefresh(mX, mY);
-        }
-    }
-    [DisplayOnly]
-    [SerializeField]
-    private bool mIsDrag = false;
-    public bool IsDrag { get => mIsDrag; set => mIsDrag = value; }
-
-    private Vector2 mDragStartPos = Vector2.zero;
-    [DisplayOnly]
-    [SerializeField]
-    private float mX = 0.0f;
-    [DisplayOnly]
-    [SerializeField]
-    private float mY = 0.0f;
-    private Vector2 mClampSize = Vector2.zero;
-
+    protected Vector2 ViewportSize = Vector2.zero;
+    protected Vector2Int ShowCount = Vector2Int.zero;
+    protected Vector2 BeginRectPos = Vector2.zero;
+    protected Vector2 BeginPos = Vector2.zero;
+    protected Vector2 DragPos = Vector2.zero;
+    protected Vector2 ClampSize = Vector2.zero;
+    protected bool IsOnDrag = false;
+    protected bool IsForceUpdate = false;
+    protected Queue<PoolItemInfo> ElementPool = new Queue<PoolItemInfo>();
+    protected Dictionary<string, UsePoolItemInfo> UseElementPool = new Dictionary<string, UsePoolItemInfo>();
+    #endregion
+    #region 生命周期
     protected override void Awake()
     {
-        base.Awake();
-        if (Vertical)
-            Vertical.onValueChanged.AddListener((_val) =>
-            {
-                mX = Content.anchoredPosition.x;
-                mY = Content.anchoredPosition.y;
-                mY = Mathf.Clamp(_val * mClampSize.y, 0.0f, mClampSize.y);
-                LogMgr.Instance.CLog($"mY:{mY}");
-                OnDragRefresh(mX, mY);
-            });
         if (Horizontal)
-            Horizontal.onValueChanged.AddListener((_val) =>
-            {
-                mX = Mathf.Clamp(_val * mClampSize.x, mClampSize.x, 0.0f);
-                mY = Content.anchoredPosition.y;
-                OnDragRefresh(mX, mY);
-
-            });
-        OnInit();
-
-    }
-    [DisplayOnly]
-    public SerializableQueue<GameObject> mPool = new SerializableQueue<GameObject>();
-    [DisplayOnly]
-    public SerializableDictionary<int, SerializableDictionary<int, GameObject>> mUsePool = new SerializableDictionary<int, SerializableDictionary<int, GameObject>>();
-    protected virtual void OnInit()
-    {
-        if (Element == null)
-        {
-            LogMgr.Instance.CWarn("Element Is Null");
-            return;
-        }
-        RectTransform _rect = GetComponent<RectTransform>();
-        ElementSize = (Element.transform as RectTransform).sizeDelta;
-        ShowCountX = Mathf.CeilToInt(_rect.sizeDelta.x / ElementSize.x) + 1;
-        ShowCountX = Mathf.Clamp(ShowCountX, 1, HorizontalCount);
-        ShowCountY = Mathf.CeilToInt(_rect.sizeDelta.y / ElementSize.y) + 1;
-        Content.sizeDelta = new Vector2((ElementSize.x + Spacing.x) * HorizontalCount + Padding.x + Padding.y, (ElementSize.y + Spacing.y) * Mathf.CeilToInt(AllElementCount / HorizontalCount) + Padding.z + Padding.w);
-        mClampSize = new Vector2(_rect.sizeDelta.x - Content.sizeDelta.x, Content.sizeDelta.y - _rect.sizeDelta.y);
-        Horizontal.size = Mathf.Clamp(_rect.sizeDelta.x / Content.sizeDelta.x, 0.0f, 1.0f);
-        Vertical.size = Mathf.Clamp(_rect.sizeDelta.y / Content.sizeDelta.y, 0.0f, 1.0f);
-        OnCreatePool();
+            Horizontal.onValueChanged.AddListener(OnScrollBar);
         if (Vertical)
-            Vertical.SetValueWithoutNotify(0);
-        if (Horizontal)
-            Horizontal.SetValueWithoutNotify(0);
-        for (int i = 0; i < ShowCountY; i++)
-        {
-
-            for (int j = 0; j < ShowCountX; j++)
-            {
-                OnEnter(i, j);
-            }
-        }
-        mCurPos = new Vector2(0, 0);
-        Content.anchoredPosition = mCurPos;
+            Vertical.onValueChanged.AddListener(OnScrollBar);
+        DoInit();
     }
-    protected virtual void OnCreatePool()
+    private void Update()
     {
-        int _count = ShowCountX * ShowCountY;
-        for (int i = 0; i < _count; i++)
+
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            GameObject _element = Instantiate(Element, Content);
-            _element.SetActive(false);
-            mPool.Enqueue(_element);
+            Navigate2Pos(toI, toJ, toRowType, toColType);
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            DoUpdateContentPos(toPos);
+            DoRefreshViewport();
         }
     }
-    [DisplayOnly]
-    [SerializeField]
-    private Vector2 mLastPos = Vector2.zero;
-    [DisplayOnly]
-    [SerializeField]
-    private Vector2 mCurPos = Vector2.zero;
-    private bool mActive = false;
-    protected virtual void OnDragRefresh(float _x, float _y)
-    {
-        if (mActive)
-            return;
-        if (!Content)
-        {
-            LogMgr.Instance.CWarn("Content Is Null");
-            return;
-        }
-        mCurPos = new Vector2(_x, _y);
-        Content.anchoredPosition = mCurPos;
-        int _yClamp = Mathf.CeilToInt(AllElementCount / HorizontalCount);
-        mX = Mathf.FloorToInt(Mathf.Abs(_x) / (ElementSize.x + Spacing.x));
-        mX = Mathf.Clamp(mX, 0, HorizontalCount);
-        mY = Mathf.FloorToInt(Mathf.Abs(_y) / (ElementSize.y + Spacing.y));
-        mY = Mathf.Clamp(mY, 0, _yClamp);
-
-        if (mX == HeadX && mY == HeadY)
-            return;
-        mActive = true;
-        int _valX = (int)mX - HeadX;
-        int _valY = (int)mY - HeadY;
-
-        int _reStartY = HeadY;
-        int _reEndY = HeadY + ShowCountY;
-        int _addStartY = (int)mY;
-        int _addEndY = (int)mY + ShowCountY;
-
-        int _reStratX = HeadX;
-        int _reEndX = HeadX + ShowCountX;
-        int _addStratX = (int)mX;
-        int _addEndX = (int)mX + ShowCountX;
-
-        if (_valY > 0)
-        {
-            _reStartY = HeadY;
-            _reEndY = (int)mY;
-            _addStartY = HeadY + ShowCountY;
-            _addEndY = (int)mY + ShowCountY;
-        }
-        else if (_valY < 0)
-        {
-            _reStartY = (int)mY + ShowCountY;
-            _reEndY = HeadY + ShowCountY;
-            _addStartY = (int)mY;
-            _addEndY = HeadY;
-        }
-
-        if (_valX > 0)
-        {
-            _reStratX = HeadX;
-            _reEndX = (int)mX;
-            _addStratX = HeadX + ShowCountX;
-            _addEndX = (int)mX + ShowCountX;
-        }
-        else if (_valX < 0)
-        {
-            _reStratX = (int)mX + ShowCountX;
-            _reEndX = HeadX + ShowCountX;
-            _addStratX = (int)mX;
-            _addEndX = HeadX;
-        }
-
-        _reStartY = Mathf.Clamp(_reStartY, 0, _yClamp);
-        _reEndY = Mathf.Clamp(_reEndY, 0, _yClamp);
-        _addStartY = Mathf.Clamp(_addStartY, 0, _yClamp);
-        _addEndY = Mathf.Clamp(_addEndY, 0, _yClamp);
-
-        _reStratX = Mathf.Clamp(_reStratX, 0, HorizontalCount);
-        _reEndX = Mathf.Clamp(_reEndX, 0, HorizontalCount);
-        _addStratX = Mathf.Clamp(_addStratX, 0, HorizontalCount);
-        _addEndX = Mathf.Clamp(_addEndX, 0, HorizontalCount);
-
-
-
-        //�Ƴ�
-        for (int i = _reStartY; i < _reEndY; i++)
-        {
-            if (!mUsePool.ContainsKey(i))
-                continue;
-            for (int j = _reStratX; j < _reEndX; j++)
-            {
-                OnExit(i, j);
-            }
-        }
-        //����
-        for (int i = _addStartY; i < _addEndY; i++)
-        {
-            for (int j = _addStratX; j < _addEndX; j++)
-            {
-                OnEnter(i, j);
-            }
-        }
-        HeadX = (int)mX;
-        HeadY = (int)mY;
-        mActive = false;
-    }
-    protected virtual void OnExit(int i, int j)
-    {
-        if (mUsePool[i].TryGetValue(j, out GameObject _element))
-        {
-            _element = mUsePool[i][j];
-            TestScrollElement _script = _element.GetOrAddComponent<TestScrollElement>();
-            _script.OnExit(i, j);
-            mPool.Enqueue(_element);
-            mUsePool[i].Remove(j);
-        }
-    }
-    protected virtual void OnEnter(int i, int j)
-    {
-        if (!mUsePool.ContainsKey(i))
-            mUsePool.Add(i, new SerializableDictionary<int, GameObject>());
-        if (mUsePool[i].TryGetValue(j, out GameObject _obj))
-        {
-            return;
-        }
-        GameObject _element = mPool.Dequeue();
-        if (_element == null)
-            return;
-        TestScrollElement _script = _element.GetOrAddComponent<TestScrollElement>();
-        RectTransform _rectT = _element.transform as RectTransform;
-        _rectT.anchoredPosition = new Vector2(j * (ElementSize.x + Spacing.x), -i * (ElementSize.y + Spacing.y));
-        _script.OnEnter(i, j);
-        mUsePool[i].Add(j, _element);
-    }
-
-    public void GraphicUpdateComplete()
-    {
-        LogMgr.Instance.CLog("GraphicUpdateComplete");
-    }
-
-    public void LayoutComplete()
-    {
-        LogMgr.Instance.CLog("LayoutComplete");
-    }
-
-
-
-
-
+    #endregion
+    #region UI事件监听
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
-        //LogMgr.Instance.CLog("OnInitializePotentialDrag");
-        IsDrag = true;
-        StartDargPos = eventData.position;
-        mDragStartPos = Content.anchoredPosition;
-    }
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        //LogMgr.Instance.CLog("OnBeginDrag");
-        CurDargPos = eventData.position;
+        if (!Conditions.IsDrag)
+            return;
+        BeginRectPos = Content.anchoredPosition;
+        BeginPos = eventData.position;
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        //LogMgr.Instance.CLog("OnDrag");
-        CurDargPos = eventData.position;
+        if (!Conditions.IsDrag)
+            return;
+        IsOnDrag = true;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        //LogMgr.Instance.CLog("OnEndDrag");
-        IsDrag = false;
-        StartDargPos = Vector2.zero;
-        CurDargPos = Vector2.zero;
+        if (!Conditions.IsDrag)
+            return;
+        IsOnDrag = false;
+        BeginPos = Vector2.zero;
+        DragPos = Vector2.zero;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!Conditions.IsDrag)
+            return;
+        DragPos = eventData.position;
+        DoNotifyUpdateScrollBar();
+        DoRefreshViewport();
     }
 
     public void OnScroll(PointerEventData eventData)
     {
-        //LogMgr.Instance.CLog($"OnScroll:{eventData.scrollDelta.y * ScrollSensitivity}");
-        mX = Content.anchoredPosition.x;
-        mY = Content.anchoredPosition.y;
-        mY = Mathf.Clamp(mY -= (eventData.scrollDelta.y * ScrollSensitivity), 0.0f, mClampSize.y);
-        if (Vertical)
-            Vertical.SetValueWithoutNotify(Mathf.Clamp(mY / mClampSize.y, 0.0f, 1.0f));
-        OnDragRefresh(mX, mY);
+        if (!Conditions.IsScroll)
+            return;
+        DoUpdateContentPos(Content.anchoredPosition.x, Content.anchoredPosition.y - (eventData.scrollDelta.y * ScrollSensitivity));
+        DoNotifyUpdateScrollBar();
+        DoRefreshViewport();
     }
-
-
-
-
-
 
     public void Rebuild(CanvasUpdate executing)
     {
-        LogMgr.Instance.CLog("Rebuild");
     }
+
+    public void LayoutComplete()
+    {
+    }
+    protected override void OnValidate()
+    {
+        DoValidate();
+    }
+    public void GraphicUpdateComplete()
+    {
+    }
+    protected void OnScrollBar(float _val)
+    {
+        if (!Conditions.IsScrollBar)
+            return;
+        Vector2 pos = Content.anchoredPosition;
+        if (Horizontal && Conditions.IsHorzBar)
+        {
+            pos = new Vector2(-Horizontal.value * (Content.sizeDelta.x - ViewportSize.x), pos.y);
+        }
+        if (Vertical && Conditions.IsVertBar)
+        {
+            pos = new Vector2(pos.x, Vertical.value * (Content.sizeDelta.y - ViewportSize.y));
+        }
+        DoUpdateContentPos(pos);
+        DoRefreshViewport();
+    }
+    #endregion
+    #region 列表刷新逻辑
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    protected virtual void DoInit()
+    {
+        if (GenerateElement == null || ViewPort == null)
+            return;
+        GetBaseInfo();
+        DoUpdateScrollSize();
+        DoRefreshViewport();
+        DoNotifyUpdateScrollBar();
+
+    }
+    /// <summary>
+    /// 生成元素对象池
+    /// </summary>
+    protected virtual void DoGeneratePool()
+    {
+        int count = Mathf.CeilToInt((ShowCount.x + 1) / 2) * Mathf.CeilToInt((ShowCount.y + 1) / 2);
+        for (int i = 0; i < count; i++)
+        {
+            GameObject _element = Instantiate(GenerateElement, Content);
+            RectTransform _rect = _element.GetComponent<RectTransform>();
+            _rect.anchorMin = new Vector2(0, 1);
+            _rect.anchorMax = new Vector2(0, 1);
+            _rect.pivot = new Vector2(0, 1);
+            _element.SetActive(false);
+            IDynamicScrollViewRefresh _script = _element.GetComponent<IDynamicScrollViewRefresh>();
+            ElementPool.Enqueue(new PoolItemInfo(_element, _script));
+        }
+    }
+    /// <summary>
+    /// 刷新显示区域
+    /// </summary>
+    protected virtual void DoRefreshViewport()
+    {
+        if (IsOnDrag)
+        {
+            Vector2 DragDis = BeginRectPos - (BeginPos - DragPos);
+            DoUpdateContentPos(DragDis);
+        }
+        Vector2 pos = Content.anchoredPosition;
+        int curX = Mathf.FloorToInt((pos.x + Padding.Left) / -(ElementSize.x + Spacing.x));
+        int curY = Mathf.FloorToInt((pos.y - Padding.Top) / (ElementSize.y + Spacing.y));
+        curX = Mathf.Clamp(curX, 0, GenerateRowCount);
+        curY = Mathf.Clamp(curY, 0, GenerateColCount);
+        int endX = Mathf.Clamp(curX + ShowCount.x + 1, 0, GenerateRowCount);
+        int endY = Mathf.Clamp(curY + ShowCount.y + 1, 0, GenerateColCount);
+
+        Dictionary<string, bool> tempDic = new Dictionary<string, bool>();
+        for (int i = curX; i < endX; i++)
+        {
+            for (int j = curY; j < endY; j++)
+            {
+                int index = j * GenerateRowCount + i + 1;
+                if (index > GenerateCount)
+                    continue;
+                string key = $"X_{i}_Y_{j}";
+                tempDic.Add(key, true);
+                if (UseElementPool.ContainsKey(key))
+                    continue;
+                if (ElementPool.Count == 0)
+                    DoGeneratePool();
+                UseElementPool.Add(key, new UsePoolItemInfo(ElementPool.Dequeue(), i, j, index));
+                OnEnter(UseElementPool[key].Item.Obj, i, j, index);
+            }
+        }
+        List<string> _keys = new List<string>(UseElementPool.Keys);
+        for (int i = 0; i < _keys.Count; i++)
+        {
+            if (!tempDic.ContainsKey(_keys[i]))
+            {
+                OnExit(_keys[i]);
+
+            }
+        }
+
+    }
+    /// <summary>
+    /// 更新scroll位置表现，但不触发scroll回调
+    /// </summary>
+    protected virtual void DoNotifyUpdateScrollBar()
+    {
+        if (Horizontal)
+        {
+            Horizontal.SetValueWithoutNotify(Mathf.Clamp(-Content.anchoredPosition.x / (Content.sizeDelta.x - ViewportSize.x), 0f, 1.0f));
+        }
+        if (Vertical)
+        {
+            Vertical.SetValueWithoutNotify(Mathf.Clamp(Content.anchoredPosition.y / (Content.sizeDelta.y - ViewportSize.y), 0f, 1.0f));
+        }
+    }
+    /// <summary>
+    /// 更新列表滑动条拖拽区域大小
+    /// </summary>
+    protected virtual void DoUpdateScrollSize()
+    {
+        if (Horizontal)
+        {
+            if (ScrollFixed[0].isFixed)
+            {
+                Horizontal.size = ScrollFixed[0].Size;
+            }
+            else if (Content)
+            {
+                Horizontal.size = ViewportSize.x / Content.sizeDelta.x;
+            }
+            Horizontal.interactable = Conditions.IsHorzBar && Conditions.IsScrollBar;
+        }
+        if (Vertical)
+        {
+            if (ScrollFixed[1].isFixed)
+            {
+                Vertical.size = ScrollFixed[1].Size;
+            }
+            else if (Content)
+            {
+                Vertical.size = ViewportSize.y / Content.sizeDelta.y;
+            }
+            Vertical.interactable = Conditions.IsVertBar && Conditions.IsScrollBar;
+        }
+    }
+    /// <summary>
+    /// 更新Content位置
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    protected virtual void DoUpdateContentPos(float x, float y)
+    {
+        Vector2 pos = new Vector2(Mathf.Clamp(x, ClampSize.x, 0), Mathf.Clamp(y, 0, ClampSize.y));
+        if (!Conditions.IsHorz && !Conditions.IsVert)
+        {
+            return;
+        }
+        else if (!Conditions.IsHorz)
+        {
+            pos = new Vector2(Content.anchoredPosition.x, y);
+        }
+        else if (!Conditions.IsVert)
+        {
+            pos = new Vector2(x, Content.anchoredPosition.y);
+        }
+        Content.anchoredPosition = pos;
+    }
+    /// <summary>
+    /// 更新Content位置
+    /// </summary>
+    /// <param name="vec"></param>
+    protected virtual void DoUpdateContentPos(Vector2 vec)
+    {
+        DoUpdateContentPos(vec.x, vec.y);
+    }
+    protected virtual void OnEnter(GameObject obj, int i, int j, int index)
+    {
+        (obj.transform as RectTransform).anchoredPosition = new Vector2(Padding.Left + (ElementSize.x + Spacing.x) * i, -Padding.Top - (ElementSize.y + Spacing.y) * j);
+        obj.SetActive(true);
+        TestScrollElement _script = obj.GetOrAddComponent<TestScrollElement>();
+        _script.OnEnter(i, j, index);
+    }
+    protected virtual void OnExit(string key)
+    {
+        UsePoolItemInfo info = UseElementPool[key];
+        info.Item.Script.OnExit(info.I, info.J, info.Index);
+        info.Item.Obj.SetActive(false);
+        ElementPool.Enqueue(info.Item);
+        UseElementPool.Remove(key);
+    }
+    /// <summary>
+    /// 获取一些基础的参数
+    /// </summary>
+    protected virtual void GetBaseInfo()
+    {
+        if (GenerateElement)
+            ElementSize = (GenerateElement.transform as RectTransform).sizeDelta;
+        else
+            ElementSize = Vector2.zero;
+        if (ViewPort)
+            ViewportSize = ViewPort.sizeDelta;
+        else
+            ViewportSize = Vector2.zero;
+        ShowCount.x = Mathf.CeilToInt(ViewportSize.x / (ElementSize.x + Spacing.x));
+        ShowCount.y = Mathf.CeilToInt(ViewportSize.y / (ElementSize.y + Spacing.y));
+        GenerateColCount = Mathf.CeilToInt(GenerateCount / (GenerateRowCount * 1.0f));
+        Content.sizeDelta = new Vector2(Padding.Left + Padding.Right + GenerateRowCount * (ElementSize.x + Spacing.x), Padding.Top + Padding.Bottom + GenerateColCount * (ElementSize.y + Spacing.y));
+        ClampSize = new Vector2(-(Content.sizeDelta.x - ViewportSize.x), Content.sizeDelta.y - ViewportSize.y);
+    }
+
+    protected virtual void DoValidate()
+    {
+        GetBaseInfo();
+        DoUpdateScrollSize();
+    }
+    #endregion
+    #region 工具接口
+    /// <summary>
+    /// 更新生成总数
+    /// </summary>
+    /// <param name="count"></param>
+    /// <param name="rowCount"></param>
+    /// <param name="isToTop"></param>
+    protected virtual void SetGenerateCount(GenerateInfo info)
+    {
+        GenerateCount = info.GenerateCount;
+        if (info.GenerateRowCount != -1)
+            GenerateRowCount = info.GenerateRowCount;
+        GetBaseInfo();
+        if (info.Is2Top)
+        {
+            DoUpdateContentPos(0, 0);
+        }
+        else
+        {
+            DoUpdateContentPos(Content.anchoredPosition);
+        }
+        DoUpdateScrollSize();
+        DoRefreshViewport();
+        DoNotifyUpdateScrollBar();
+    }
+
+    protected virtual void Navigate2Pos(int i, int j, NavigateRowType rowType, NavigateColType colType)
+    {
+        i = Mathf.Clamp(i - 1, 0, GenerateRowCount);
+        j = Mathf.Clamp(j - 1, 0, GenerateColCount);
+        float x = 0;
+        float y = 0;
+        if (rowType == NavigateRowType.Front)
+            x = -Padding.Left - (ElementSize.x + Spacing.x) * i;
+        else if (rowType == NavigateRowType.Middle)
+            x = (ViewportSize.x - ElementSize.x) / 2 - (ElementSize.x + Spacing.x) * i - Padding.Left;
+        else if (rowType == NavigateRowType.Back)
+            x = -Padding.Left - (ElementSize.x + Spacing.x) * i + (ViewportSize.x - ElementSize.x);
+
+        if (colType == NavigateColType.Top)
+            y = Padding.Top + (ElementSize.y + Spacing.y) * j;
+        else if (colType == NavigateColType.Middle)
+            y = Padding.Top + (ElementSize.y + Spacing.y) * j - ViewportSize.y / 2 + ElementSize.y / 2;
+        else if (colType == NavigateColType.Bottom)
+            y = Padding.Top + (ElementSize.y + Spacing.y) * j - ViewportSize.y + ElementSize.y;
+        Vector2 pos = new Vector2(x, y);
+
+        DoUpdateContentPos(pos);
+        DoRefreshViewport();
+        DoNotifyUpdateScrollBar();
+    }
+    protected virtual void Navigate2Pos(int index)
+    {
+
+    }
+    #endregion
+
+}
+[Serializable]
+public struct ScrollFixedInfo
+{
+    [DisplayOnly]
+    public string Name;
+    public bool isFixed;
+    [Range(0f, 1.0f)]
+    public float Size;
+    public ScrollFixedInfo(string name, bool isFixed, float size)
+    {
+        Name = name;
+        this.isFixed = isFixed;
+        Size = size;
+
+    }
+}
+[Serializable]
+public struct IntPaddingInfo
+{
+    public int Top;
+    public int Bottom;
+    public int Left;
+    public int Right;
+    public IntPaddingInfo(int top, int bottom, int left, int right)
+    {
+        Top = top;
+        Bottom = bottom;
+        Left = left;
+        Right = right;
+    }
+}
+[Serializable]
+public struct GenerateInfo
+{
+    public int GenerateCount;
+    public int GenerateRowCount;
+    public bool IsForceUpdate;
+    public bool Is2Top;
+    public GenerateInfo(int count, int rowCount = -1, bool isForce = true, bool isTop = false)
+    {
+        GenerateCount = count;
+        GenerateRowCount = rowCount;
+        IsForceUpdate = isForce;
+        Is2Top = isTop;
+    }
+}
+[Serializable]
+public class ConditionInfo
+{
+    public bool IsHorz = true;
+    public bool IsVert = true;
+    public bool IsDrag = true;
+    public bool IsScroll = true;
+    public bool IsScrollBar = true;
+    public bool IsHorzBar = true;
+    public bool IsVertBar = true;
+}
+
+public struct UsePoolItemInfo
+{
+    public PoolItemInfo Item;
+    public int I;
+    public int J;
+    public int Index;
+    public UsePoolItemInfo(PoolItemInfo item, int i, int j, int index)
+    {
+        Item = item;
+        I = i;
+        J = j;
+        Index = index;
+    }
+}
+public struct PoolItemInfo
+{
+    public GameObject Obj;
+    public IDynamicScrollViewRefresh Script;
+    public PoolItemInfo(GameObject obj, IDynamicScrollViewRefresh script)
+    {
+        Obj = obj;
+        Script = script;
+    }
+}
+public enum NavigateRowType
+{
+    Front,
+    Middle,
+    Back,
+}
+public enum NavigateColType
+{
+    Top,
+    Middle,
+    Bottom
 }

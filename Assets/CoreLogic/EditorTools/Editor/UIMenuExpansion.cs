@@ -41,8 +41,9 @@ public class UIMenuExpansion : Editor
         GameObject _viewport = new GameObject("Viewport", typeof(RectTransform));
         _viewport.transform.SetParent(_scrollView.transform);
         RectTransform _viewportRect = (_viewport.transform as RectTransform);
-        _viewportRect.anchorMin = Vector2.zero;
-        _viewportRect.anchorMax = new Vector2(1, 1);
+        _viewportRect.anchorMin = new Vector2(0.5f, 1);
+        _viewportRect.anchorMax = new Vector2(0.5f, 1);
+        _viewportRect.pivot = new Vector2(0.5f, 1);
         _viewportRect.anchoredPosition = Vector2.zero;
         _viewportRect.sizeDelta = Vector2.zero;
         Image _imgB = _viewport.GetOrAddComponent<Image>();
