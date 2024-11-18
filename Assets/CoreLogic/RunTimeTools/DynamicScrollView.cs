@@ -16,51 +16,48 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
 {
     #region 参数定义
     [Header("配置")]
-    public RectTransform ViewPort = null;
-    public RectTransform Content = null;
-    public Scrollbar Horizontal = null;
-    public Scrollbar Vertical = null;
-    public GameObject GenerateElement = null;
-    public ConditionInfo Conditions = new ConditionInfo();
-    public int GenerateCount = 0;
+    public RectTransform viewPort = null;
+    public RectTransform content = null;
+    public Scrollbar horizontal = null;
+    public Scrollbar vertical = null;
+    public GameObject generateElement = null;
+    public ConditionInfo conditions = new ConditionInfo();
+    public int generateCount = 0;
     [DisplayOnly]
     [SerializeField]
-    protected int GenerateColCount = 1;
-    public int GenerateRowCount = 1;
-    public IntPaddingInfo Padding = new IntPaddingInfo(0, 0, 0, 0);
-    public Vector2Int Spacing = Vector2Int.zero;
-    public float ScrollSensitivity = 1.0f;
+    protected int generateColCount = 1;
+    public int generateRowCount = 1;
+    public IntPaddingInfo padding = new IntPaddingInfo(0, 0, 0, 0);
+    public Vector2Int spacing = Vector2Int.zero;
+    public float scrollSensitivity = 1.0f;
     [SerializeField]
-    public ScrollFixedInfo[] ScrollFixed = new ScrollFixedInfo[] {
+    public ScrollFixedInfo[] scrollFixed = new ScrollFixedInfo[] {
         new ScrollFixedInfo("Horizontal",false,1.0f),
         new ScrollFixedInfo("Vertical",false,1.0f) };
     //---------------------------------------------调试---------------------------------------------
-    public int toI = 0;
-    public int toJ = 1;
-    public NavigateRowType toRowType = NavigateRowType.Front;
-    public NavigateColType toColType = NavigateColType.Top;
-    public Vector2 toPos = Vector2Int.zero;
+    public NavigateInfo toInfo = new NavigateInfo();
+    public int toIndex = 0;
     [DisplayOnly]
-    protected Vector2 ElementSize = Vector2.zero;
+    protected Vector2 elementSize = Vector2.zero;
     [DisplayOnly]
-    protected Vector2 ViewportSize = Vector2.zero;
-    protected Vector2Int ShowCount = Vector2Int.zero;
-    protected Vector2 BeginRectPos = Vector2.zero;
-    protected Vector2 BeginPos = Vector2.zero;
-    protected Vector2 DragPos = Vector2.zero;
-    protected Vector2 ClampSize = Vector2.zero;
-    protected bool IsOnDrag = false;
-    protected bool IsForceUpdate = false;
-    protected Queue<PoolItemInfo> ElementPool = new Queue<PoolItemInfo>();
-    protected Dictionary<string, UsePoolItemInfo> UseElementPool = new Dictionary<string, UsePoolItemInfo>();
+    protected Vector2 viewportSize = Vector2.zero;
+    protected Vector2Int showCount = Vector2Int.zero;
+    protected Vector2 beginRectPos = Vector2.zero;
+    protected Vector2 beginPos = Vector2.zero;
+    protected Vector2 dragPos = Vector2.zero;
+    protected Vector2 clampSize = Vector2.zero;
+    protected bool isOnDrag = false;
+    protected bool isForceUpdate = false;
+    protected Queue<PoolItemInfo> elementPool = new Queue<PoolItemInfo>();
+    protected Dictionary<string, UsePoolItemInfo> useElementPool = new Dictionary<string, UsePoolItemInfo>();
     #endregion
     #region 生命周期
     protected override void Awake()
     {
-        if (Horizontal)
-            Horizontal.onValueChanged.AddListener(OnScrollBar);
-        if (Vertical)
-            Vertical.onValueChanged.AddListener(OnScrollBar);
+        if (horizontal)
+            horizontal.onValueChanged.AddListener(OnScrollBar);
+        if (vertical)
+            vertical.onValueChanged.AddListener(OnScrollBar);
         DoInit();
     }
     private void Update()
@@ -68,54 +65,53 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            Navigate2Pos(toI, toJ, toRowType, toColType);
+            Navigate2Pos(toInfo);
         }
         if (Input.GetKeyDown(KeyCode.W))
         {
-            DoUpdateContentPos(toPos);
-            DoRefreshViewport();
+            Navigate2Pos(toIndex, toInfo);
         }
     }
     #endregion
     #region UI事件监听
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
-        if (!Conditions.IsDrag)
+        if (!conditions.isDrag)
             return;
-        BeginRectPos = Content.anchoredPosition;
-        BeginPos = eventData.position;
+        beginRectPos = content.anchoredPosition;
+        beginPos = eventData.position;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!Conditions.IsDrag)
+        if (!conditions.isDrag)
             return;
-        IsOnDrag = true;
+        isOnDrag = true;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!Conditions.IsDrag)
+        if (!conditions.isDrag)
             return;
-        IsOnDrag = false;
-        BeginPos = Vector2.zero;
-        DragPos = Vector2.zero;
+        isOnDrag = false;
+        beginPos = Vector2.zero;
+        dragPos = Vector2.zero;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!Conditions.IsDrag)
+        if (!conditions.isDrag)
             return;
-        DragPos = eventData.position;
+        dragPos = eventData.position;
         DoNotifyUpdateScrollBar();
         DoRefreshViewport();
     }
 
     public void OnScroll(PointerEventData eventData)
     {
-        if (!Conditions.IsScroll)
+        if (!conditions.isScroll)
             return;
-        DoUpdateContentPos(Content.anchoredPosition.x, Content.anchoredPosition.y - (eventData.scrollDelta.y * ScrollSensitivity));
+        DoUpdateContentPos(content.anchoredPosition.x, content.anchoredPosition.y - (eventData.scrollDelta.y * scrollSensitivity));
         DoNotifyUpdateScrollBar();
         DoRefreshViewport();
     }
@@ -136,16 +132,16 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     }
     protected void OnScrollBar(float _val)
     {
-        if (!Conditions.IsScrollBar)
+        if (!conditions.isScrollBar)
             return;
-        Vector2 pos = Content.anchoredPosition;
-        if (Horizontal && Conditions.IsHorzBar)
+        Vector2 pos = content.anchoredPosition;
+        if (horizontal && conditions.isHorzBar)
         {
-            pos = new Vector2(-Horizontal.value * (Content.sizeDelta.x - ViewportSize.x), pos.y);
+            pos = new Vector2(-horizontal.value * (content.sizeDelta.x - viewportSize.x), pos.y);
         }
-        if (Vertical && Conditions.IsVertBar)
+        if (vertical && conditions.isVertBar)
         {
-            pos = new Vector2(pos.x, Vertical.value * (Content.sizeDelta.y - ViewportSize.y));
+            pos = new Vector2(pos.x, vertical.value * (content.sizeDelta.y - viewportSize.y));
         }
         DoUpdateContentPos(pos);
         DoRefreshViewport();
@@ -157,7 +153,7 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// </summary>
     protected virtual void DoInit()
     {
-        if (GenerateElement == null || ViewPort == null)
+        if (generateElement == null || viewPort == null)
             return;
         GetBaseInfo();
         DoUpdateScrollSize();
@@ -170,17 +166,17 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// </summary>
     protected virtual void DoGeneratePool()
     {
-        int count = Mathf.CeilToInt((ShowCount.x + 1) / 2) * Mathf.CeilToInt((ShowCount.y + 1) / 2);
+        int count = Mathf.CeilToInt((showCount.x + 1) / 2) * Mathf.CeilToInt((showCount.y + 1) / 2);
         for (int i = 0; i < count; i++)
         {
-            GameObject _element = Instantiate(GenerateElement, Content);
+            GameObject _element = Instantiate(generateElement, content);
             RectTransform _rect = _element.GetComponent<RectTransform>();
             _rect.anchorMin = new Vector2(0, 1);
             _rect.anchorMax = new Vector2(0, 1);
             _rect.pivot = new Vector2(0, 1);
             _element.SetActive(false);
             IDynamicScrollViewRefresh _script = _element.GetComponent<IDynamicScrollViewRefresh>();
-            ElementPool.Enqueue(new PoolItemInfo(_element, _script));
+            elementPool.Enqueue(new PoolItemInfo(_element, _script));
         }
     }
     /// <summary>
@@ -188,38 +184,38 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// </summary>
     protected virtual void DoRefreshViewport()
     {
-        if (IsOnDrag)
+        if (isOnDrag)
         {
-            Vector2 DragDis = BeginRectPos - (BeginPos - DragPos);
+            Vector2 DragDis = beginRectPos - (beginPos - dragPos);
             DoUpdateContentPos(DragDis);
         }
-        Vector2 pos = Content.anchoredPosition;
-        int curX = Mathf.FloorToInt((pos.x + Padding.Left) / -(ElementSize.x + Spacing.x));
-        int curY = Mathf.FloorToInt((pos.y - Padding.Top) / (ElementSize.y + Spacing.y));
-        curX = Mathf.Clamp(curX, 0, GenerateRowCount);
-        curY = Mathf.Clamp(curY, 0, GenerateColCount);
-        int endX = Mathf.Clamp(curX + ShowCount.x + 1, 0, GenerateRowCount);
-        int endY = Mathf.Clamp(curY + ShowCount.y + 1, 0, GenerateColCount);
+        Vector2 pos = content.anchoredPosition;
+        int curX = Mathf.FloorToInt((pos.x + padding.left) / -(elementSize.x + spacing.x));
+        int curY = Mathf.FloorToInt((pos.y - padding.top) / (elementSize.y + spacing.y));
+        curX = Mathf.Clamp(curX, 0, generateRowCount);
+        curY = Mathf.Clamp(curY, 0, generateColCount);
+        int endX = Mathf.Clamp(curX + showCount.x + 1, 0, generateRowCount);
+        int endY = Mathf.Clamp(curY + showCount.y + 1, 0, generateColCount);
 
         Dictionary<string, bool> tempDic = new Dictionary<string, bool>();
         for (int i = curX; i < endX; i++)
         {
             for (int j = curY; j < endY; j++)
             {
-                int index = j * GenerateRowCount + i + 1;
-                if (index > GenerateCount)
+                int index = j * generateRowCount + i + 1;
+                if (index > generateCount)
                     continue;
                 string key = $"X_{i}_Y_{j}";
                 tempDic.Add(key, true);
-                if (UseElementPool.ContainsKey(key))
+                if (useElementPool.ContainsKey(key))
                     continue;
-                if (ElementPool.Count == 0)
+                if (elementPool.Count == 0)
                     DoGeneratePool();
-                UseElementPool.Add(key, new UsePoolItemInfo(ElementPool.Dequeue(), i, j, index));
-                OnEnter(UseElementPool[key].Item.Obj, i, j, index);
+                useElementPool.Add(key, new UsePoolItemInfo(elementPool.Dequeue(), i, j, index));
+                OnEnter(useElementPool[key].item.obj, i, j, index);
             }
         }
-        List<string> _keys = new List<string>(UseElementPool.Keys);
+        List<string> _keys = new List<string>(useElementPool.Keys);
         for (int i = 0; i < _keys.Count; i++)
         {
             if (!tempDic.ContainsKey(_keys[i]))
@@ -235,13 +231,13 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// </summary>
     protected virtual void DoNotifyUpdateScrollBar()
     {
-        if (Horizontal)
+        if (horizontal)
         {
-            Horizontal.SetValueWithoutNotify(Mathf.Clamp(-Content.anchoredPosition.x / (Content.sizeDelta.x - ViewportSize.x), 0f, 1.0f));
+            horizontal.SetValueWithoutNotify(Mathf.Clamp(-content.anchoredPosition.x / (content.sizeDelta.x - viewportSize.x), 0f, 1.0f));
         }
-        if (Vertical)
+        if (vertical)
         {
-            Vertical.SetValueWithoutNotify(Mathf.Clamp(Content.anchoredPosition.y / (Content.sizeDelta.y - ViewportSize.y), 0f, 1.0f));
+            vertical.SetValueWithoutNotify(Mathf.Clamp(content.anchoredPosition.y / (content.sizeDelta.y - viewportSize.y), 0f, 1.0f));
         }
     }
     /// <summary>
@@ -249,29 +245,29 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// </summary>
     protected virtual void DoUpdateScrollSize()
     {
-        if (Horizontal)
+        if (horizontal)
         {
-            if (ScrollFixed[0].isFixed)
+            if (scrollFixed[0].isFixed)
             {
-                Horizontal.size = ScrollFixed[0].Size;
+                horizontal.size = scrollFixed[0].size;
             }
-            else if (Content)
+            else if (content)
             {
-                Horizontal.size = ViewportSize.x / Content.sizeDelta.x;
+                horizontal.size = viewportSize.x / content.sizeDelta.x;
             }
-            Horizontal.interactable = Conditions.IsHorzBar && Conditions.IsScrollBar;
+            horizontal.interactable = conditions.isHorzBar && conditions.isScrollBar;
         }
-        if (Vertical)
+        if (vertical)
         {
-            if (ScrollFixed[1].isFixed)
+            if (scrollFixed[1].isFixed)
             {
-                Vertical.size = ScrollFixed[1].Size;
+                vertical.size = scrollFixed[1].size;
             }
-            else if (Content)
+            else if (content)
             {
-                Vertical.size = ViewportSize.y / Content.sizeDelta.y;
+                vertical.size = viewportSize.y / content.sizeDelta.y;
             }
-            Vertical.interactable = Conditions.IsVertBar && Conditions.IsScrollBar;
+            vertical.interactable = conditions.isVertBar && conditions.isScrollBar;
         }
     }
     /// <summary>
@@ -281,20 +277,20 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// <param name="y"></param>
     protected virtual void DoUpdateContentPos(float x, float y)
     {
-        Vector2 pos = new Vector2(Mathf.Clamp(x, ClampSize.x, 0), Mathf.Clamp(y, 0, ClampSize.y));
-        if (!Conditions.IsHorz && !Conditions.IsVert)
+        Vector2 pos = new Vector2(Mathf.Clamp(x, clampSize.x, 0), Mathf.Clamp(y, 0, clampSize.y));
+        if (!conditions.isHorz && !conditions.isVert)
         {
             return;
         }
-        else if (!Conditions.IsHorz)
+        else if (!conditions.isHorz)
         {
-            pos = new Vector2(Content.anchoredPosition.x, y);
+            pos = new Vector2(content.anchoredPosition.x, y);
         }
-        else if (!Conditions.IsVert)
+        else if (!conditions.isVert)
         {
-            pos = new Vector2(x, Content.anchoredPosition.y);
+            pos = new Vector2(x, content.anchoredPosition.y);
         }
-        Content.anchoredPosition = pos;
+        content.anchoredPosition = pos;
     }
     /// <summary>
     /// 更新Content位置
@@ -306,37 +302,39 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     }
     protected virtual void OnEnter(GameObject obj, int i, int j, int index)
     {
-        (obj.transform as RectTransform).anchoredPosition = new Vector2(Padding.Left + (ElementSize.x + Spacing.x) * i, -Padding.Top - (ElementSize.y + Spacing.y) * j);
+        (obj.transform as RectTransform).anchoredPosition = new Vector2(padding.left + (elementSize.x + spacing.x) * i, -padding.top - (elementSize.y + spacing.y) * j);
         obj.SetActive(true);
         TestScrollElement _script = obj.GetOrAddComponent<TestScrollElement>();
         _script.OnEnter(i, j, index);
     }
     protected virtual void OnExit(string key)
     {
-        UsePoolItemInfo info = UseElementPool[key];
-        info.Item.Script.OnExit(info.I, info.J, info.Index);
-        info.Item.Obj.SetActive(false);
-        ElementPool.Enqueue(info.Item);
-        UseElementPool.Remove(key);
+        UsePoolItemInfo info = useElementPool[key];
+        info.item.script.OnExit(info.i, info.j, info.index);
+        info.item.obj.SetActive(false);
+        elementPool.Enqueue(info.item);
+        useElementPool.Remove(key);
     }
     /// <summary>
     /// 获取一些基础的参数
     /// </summary>
     protected virtual void GetBaseInfo()
     {
-        if (GenerateElement)
-            ElementSize = (GenerateElement.transform as RectTransform).sizeDelta;
+        if (generateElement)
+            elementSize = (generateElement.transform as RectTransform).sizeDelta;
         else
-            ElementSize = Vector2.zero;
-        if (ViewPort)
-            ViewportSize = ViewPort.sizeDelta;
+            elementSize = Vector2.zero;
+        if (viewPort)
+            viewportSize = viewPort.sizeDelta;
         else
-            ViewportSize = Vector2.zero;
-        ShowCount.x = Mathf.CeilToInt(ViewportSize.x / (ElementSize.x + Spacing.x));
-        ShowCount.y = Mathf.CeilToInt(ViewportSize.y / (ElementSize.y + Spacing.y));
-        GenerateColCount = Mathf.CeilToInt(GenerateCount / (GenerateRowCount * 1.0f));
-        Content.sizeDelta = new Vector2(Padding.Left + Padding.Right + GenerateRowCount * (ElementSize.x + Spacing.x), Padding.Top + Padding.Bottom + GenerateColCount * (ElementSize.y + Spacing.y));
-        ClampSize = new Vector2(-(Content.sizeDelta.x - ViewportSize.x), Content.sizeDelta.y - ViewportSize.y);
+            viewportSize = Vector2.zero;
+        showCount.x = Mathf.CeilToInt(viewportSize.x / (elementSize.x + spacing.x));
+        showCount.y = Mathf.CeilToInt(viewportSize.y / (elementSize.y + spacing.y));
+        generateColCount = Mathf.CeilToInt(generateCount / (generateRowCount * 1.0f));
+        if (content == null)
+            return;
+        content.sizeDelta = new Vector2(padding.left + padding.right + generateRowCount * (elementSize.x + spacing.x), padding.top + padding.bottom + generateColCount * (elementSize.y + spacing.y));
+        clampSize = new Vector2(-(content.sizeDelta.x - viewportSize.x), content.sizeDelta.y - viewportSize.y);
     }
 
     protected virtual void DoValidate()
@@ -354,51 +352,74 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
     /// <param name="isToTop"></param>
     protected virtual void SetGenerateCount(GenerateInfo info)
     {
-        GenerateCount = info.GenerateCount;
-        if (info.GenerateRowCount != -1)
-            GenerateRowCount = info.GenerateRowCount;
+        generateCount = info.generateCount;
+        if (info.generateRowCount != -1)
+            generateRowCount = info.generateRowCount;
         GetBaseInfo();
-        if (info.Is2Top)
+        if (info.is2Top)
         {
             DoUpdateContentPos(0, 0);
         }
         else
         {
-            DoUpdateContentPos(Content.anchoredPosition);
+            DoUpdateContentPos(content.anchoredPosition);
         }
         DoUpdateScrollSize();
         DoRefreshViewport();
         DoNotifyUpdateScrollBar();
     }
+    /// <summary>
+    /// 定位移动到指定行列位置
+    /// </summary>
+    /// <param name="info"></param>
 
-    protected virtual void Navigate2Pos(int i, int j, NavigateRowType rowType, NavigateColType colType)
+    protected virtual void Navigate2Pos(NavigateInfo info)
     {
-        i = Mathf.Clamp(i - 1, 0, GenerateRowCount);
-        j = Mathf.Clamp(j - 1, 0, GenerateColCount);
+        int i = Mathf.Clamp(info.x - 1, 0, generateRowCount);
+        int j = Mathf.Clamp(info.y - 1, 0, generateColCount);
         float x = 0;
         float y = 0;
-        if (rowType == NavigateRowType.Front)
-            x = -Padding.Left - (ElementSize.x + Spacing.x) * i;
-        else if (rowType == NavigateRowType.Middle)
-            x = (ViewportSize.x - ElementSize.x) / 2 - (ElementSize.x + Spacing.x) * i - Padding.Left;
-        else if (rowType == NavigateRowType.Back)
-            x = -Padding.Left - (ElementSize.x + Spacing.x) * i + (ViewportSize.x - ElementSize.x);
+        if (info.rowType == NavigateRowType.Front)
+            x = -padding.left - (elementSize.x + spacing.x) * i;
+        else if (info.rowType == NavigateRowType.Middle)
+            x = (viewportSize.x - elementSize.x) / 2 - (elementSize.x + spacing.x) * i - padding.left;
+        else if (info.rowType == NavigateRowType.Back)
+            x = -padding.left - (elementSize.x + spacing.x) * i + (viewportSize.x - elementSize.x);
 
-        if (colType == NavigateColType.Top)
-            y = Padding.Top + (ElementSize.y + Spacing.y) * j;
-        else if (colType == NavigateColType.Middle)
-            y = Padding.Top + (ElementSize.y + Spacing.y) * j - ViewportSize.y / 2 + ElementSize.y / 2;
-        else if (colType == NavigateColType.Bottom)
-            y = Padding.Top + (ElementSize.y + Spacing.y) * j - ViewportSize.y + ElementSize.y;
+        if (info.colType == NavigateColType.Top)
+            y = padding.top + (elementSize.y + spacing.y) * j;
+        else if (info.colType == NavigateColType.Middle)
+            y = padding.top + (elementSize.y + spacing.y) * j - viewportSize.y / 2 + elementSize.y / 2;
+        else if (info.colType == NavigateColType.Bottom)
+            y = padding.top + (elementSize.y + spacing.y) * j - viewportSize.y + elementSize.y;
         Vector2 pos = new Vector2(x, y);
 
         DoUpdateContentPos(pos);
         DoRefreshViewport();
         DoNotifyUpdateScrollBar();
     }
-    protected virtual void Navigate2Pos(int index)
+    /// <summary>
+    /// 定位移动到指定下标位置
+    /// </summary>
+    /// <param name="info"></param>
+    protected virtual void Navigate2Pos(int index, NavigateInfo info)
     {
-
+        int _x = Mathf.FloorToInt((index * 1.0f) / generateRowCount);
+        int _y = index - (_x * generateRowCount);
+        _x++;
+        _y++;
+        NavigateInfo _info = new NavigateInfo(_x, _y, info.rowType, info.colType);
+        Navigate2Pos(_info);
+    }
+    /// <summary>
+    /// 改变间距
+    /// </summary>
+    /// <param name="info"></param>
+    protected virtual void SetPadding(IntPaddingInfo info)
+    {
+        padding = info;
+        DoRefreshViewport();
+        DoNotifyUpdateScrollBar();
     }
     #endregion
 
@@ -407,82 +428,82 @@ public class DynamicScrollView : UIBehaviour, IInitializePotentialDragHandler, I
 public struct ScrollFixedInfo
 {
     [DisplayOnly]
-    public string Name;
+    public string name;
     public bool isFixed;
     [Range(0f, 1.0f)]
-    public float Size;
-    public ScrollFixedInfo(string name, bool isFixed, float size)
+    public float size;
+    public ScrollFixedInfo(string _name, bool _isFixed, float _size)
     {
-        Name = name;
-        this.isFixed = isFixed;
-        Size = size;
+        name = _name;
+        isFixed = _isFixed;
+        size = _size;
 
     }
 }
 [Serializable]
 public struct IntPaddingInfo
 {
-    public int Top;
-    public int Bottom;
-    public int Left;
-    public int Right;
-    public IntPaddingInfo(int top, int bottom, int left, int right)
+    public int top;
+    public int bottom;
+    public int left;
+    public int right;
+    public IntPaddingInfo(int _top, int _bottom, int _left, int _right)
     {
-        Top = top;
-        Bottom = bottom;
-        Left = left;
-        Right = right;
+        top = _top;
+        bottom = _bottom;
+        left = _left;
+        right = _right;
     }
 }
 [Serializable]
 public struct GenerateInfo
 {
-    public int GenerateCount;
-    public int GenerateRowCount;
-    public bool IsForceUpdate;
-    public bool Is2Top;
-    public GenerateInfo(int count, int rowCount = -1, bool isForce = true, bool isTop = false)
+    public int generateCount;
+    public int generateRowCount;
+    public bool isForceUpdate;
+    public bool is2Top;
+    public GenerateInfo(int _count, int _rowCount = -1, bool _isForce = true, bool _isTop = false)
     {
-        GenerateCount = count;
-        GenerateRowCount = rowCount;
-        IsForceUpdate = isForce;
-        Is2Top = isTop;
+        generateCount = _count;
+        generateRowCount = _rowCount;
+        isForceUpdate = _isForce;
+        is2Top = _isTop;
     }
 }
 [Serializable]
 public class ConditionInfo
 {
-    public bool IsHorz = true;
-    public bool IsVert = true;
-    public bool IsDrag = true;
-    public bool IsScroll = true;
-    public bool IsScrollBar = true;
-    public bool IsHorzBar = true;
-    public bool IsVertBar = true;
+    public bool isHorz = true;
+    public bool isVert = true;
+    public bool isDrag = true;
+    public bool isScroll = true;
+    public bool isScrollBar = true;
+    public bool isHorzBar = true;
+    public bool isVertBar = true;
 }
 
 public struct UsePoolItemInfo
 {
-    public PoolItemInfo Item;
-    public int I;
-    public int J;
-    public int Index;
-    public UsePoolItemInfo(PoolItemInfo item, int i, int j, int index)
+    public PoolItemInfo item;
+    public int i;
+    public int j;
+    public int index;
+    public UsePoolItemInfo(PoolItemInfo _item, int _i, int _j, int _index)
     {
-        Item = item;
-        I = i;
-        J = j;
-        Index = index;
+        item = _item;
+        i = _i;
+        j = _j;
+        index = _index;
     }
 }
 public struct PoolItemInfo
 {
-    public GameObject Obj;
-    public IDynamicScrollViewRefresh Script;
-    public PoolItemInfo(GameObject obj, IDynamicScrollViewRefresh script)
+    public GameObject obj;
+    public IDynamicScrollViewRefresh script;
+    public PoolItemInfo(GameObject _obj, IDynamicScrollViewRefresh _script)
     {
-        Obj = obj;
-        Script = script;
+        this.obj = _obj;
+        script = _script;
     }
 }
 public enum NavigateRowType
@@ -496,4 +517,19 @@ public enum NavigateColType
     Top,
     Middle,
     Bottom
+}
+[Serializable]
+public struct NavigateInfo
+{
+    public int x;
+    public int y;
+    public NavigateRowType rowType;
+    public NavigateColType colType;
+    public NavigateInfo(int _x, int _y, NavigateRowType _rowType, NavigateColType _colType)
+    {
+        x = _x;
+        y = _y;
+        rowType = _rowType;
+        colType = _colType;
+    }
 }
