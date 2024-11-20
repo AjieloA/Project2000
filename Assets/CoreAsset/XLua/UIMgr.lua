@@ -4,7 +4,7 @@ local mUIAllBaseTable = {}
 local mUIAllView = {}
 function UIMgr:OpenUI(_scriptName)
     local _base = _scriptName .. "Base"
-    local _basePath = _scriptName .. "/" .. _scriptName .. "Base"
+    local _basePath = _scriptName .. "/" .. _base
     if (mUIAllBaseTable[_base] == nil) then
         require(_basePath)
         mUIAllBaseTable[_base] = _G[_base]
